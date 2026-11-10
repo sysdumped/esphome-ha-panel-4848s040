@@ -1,0 +1,61 @@
+# =============================================================================
+# Esempio di deploy. Copialo nella cartella ESPHome (es. ha-panel.yaml),
+# cambia le substitutions con le TUE entita' e installa.
+# =============================================================================
+
+substitutions:
+  device_name: ha-panel
+  friendly_name: HA Panel
+  # display_rotation: "270"     # USB verso il basso
+
+  # Consumi
+  ent_power_total: sensor.power_total
+  ent_power_sub: sensor.power_sub
+  label_power_sub: "Primo piano"
+  power_warn: "4500"
+  power_limit: "6000"
+  power_limit_label: "6 kW"
+  power_max_scale: "7000"
+
+  # Temperature
+  ent_temp_in: sensor.temperature_indoor
+  ent_temp_out: sensor.temperature_outdoor
+
+  # Termostato
+  ent_climate: climate.thermostat
+
+  # Luci (light.* o switch.*)
+  ent_light_1: light.living_room
+  label_light_1: "Soggiorno"
+  ent_light_2: light.kitchen
+  label_light_2: "Cucina"
+  ent_light_3: light.hallway
+  label_light_3: "Ingresso"
+
+  # Pagina stanze
+  ent_room_1: sensor.living_room_temperature
+  label_room_1: "Soggiorno"
+  ent_room_2: sensor.bedroom_1_temperature
+  label_room_2: "Camera 1"
+  ent_room_3: sensor.bedroom_2_temperature
+  label_room_3: "Camera 2"
+  ent_room_4: sensor.bathroom_temperature
+  label_room_4: "Bagno"
+
+packages:
+  ha_panel:
+    url: https://github.com/sysdumped/esphome-ha-panel-4848s040
+    ref: main            # meglio un tag, es. v0.1.0
+    refresh: 1d
+    files:
+      - packages/hardware/guition-4848s040.yaml
+      # - packages/hardware/guition-4848s040-relays.yaml   # solo versione con relè
+      - packages/base.yaml
+      - packages/ha_data.yaml
+      - packages/ui.yaml
+
+  # In alternativa, con il repo clonato in locale:
+  # hardware: !include esphome-ha-panel-4848s040/packages/hardware/guition-4848s040.yaml
+  # base:     !include esphome-ha-panel-4848s040/packages/base.yaml
+  # ha_data:  !include esphome-ha-panel-4848s040/packages/ha_data.yaml
+  # ui:       !include esphome-ha-panel-4848s040/packages/ui.yaml

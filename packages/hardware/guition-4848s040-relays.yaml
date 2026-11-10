@@ -1,0 +1,25 @@
+# =============================================================================
+# Opzionale: modulo a 3 relè della Guition ESP32-S3-4848S040.
+# Includilo solo se la tua scheda ha il modulo relè.
+# Nota: con il modulo relè la scheda non entra in una scatola tonda EU da 60 mm.
+# =============================================================================
+
+switch:
+  - platform: gpio
+    id: relay_1
+    name: "Relè 1"
+    pin:
+      number: GPIO40
+      inverted: true
+  - platform: gpio
+    id: relay_2
+    name: "Relè 2"
+    pin:
+      number: GPIO2
+      inverted: true
+  - platform: gpio
+    id: relay_3
+    name: "Relè 3"
+    pin:
+      number: GPIO1
+      inverted: true

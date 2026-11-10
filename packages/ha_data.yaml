@@ -1,0 +1,160 @@
+# =============================================================================
+# Dati da Home Assistant.
+# Le entita' sono SEGNAPOSTO: sovrascrivile nel tuo YAML di deploy
+# (sezione substitutions), senza toccare questo file.
+# =============================================================================
+
+substitutions:
+  # --- Consumi -------------------------------------------------------------
+  ent_power_total: sensor.power_total        # W, consumo istantaneo casa
+  ent_power_sub: sensor.power_sub            # W, consumo secondario (es. un piano)
+  label_power_sub: "Primo piano"
+  power_warn: "4500"                         # W, soglia arancio
+  power_limit: "6000"                        # W, soglia rossa
+  power_limit_label: "6 kW"
+  power_max_scale: "7000"                    # W, fondo scala dell'arco
+
+  # --- Temperature ---------------------------------------------------------
+  ent_temp_in: sensor.temperature_indoor
+  ent_temp_out: sensor.temperature_outdoor
+  label_temp_in: "Interno"
+  label_temp_out: "Esterno"
+
+  # --- Termostato (climate) ------------------------------------------------
+  ent_climate: climate.thermostat
+  label_climate: "Termostato"
+
+  # --- Luci (light.* o switch.*, qualsiasi entita' on/off) ------------------
+  ent_light_1: light.light_1
+  ent_light_2: light.light_2
+  ent_light_3: light.light_3
+  label_light_1: "Luce 1"
+  label_light_2: "Luce 2"
+  label_light_3: "Luce 3"
+
+  # --- Pagina stanze -------------------------------------------------------
+  ent_room_1: sensor.room_1_temperature
+  ent_room_2: sensor.room_2_temperature
+  ent_room_3: sensor.room_3_temperature
+  ent_room_4: sensor.room_4_temperature
+  label_room_1: "Stanza 1"
+  label_room_2: "Stanza 2"
+  label_room_3: "Stanza 3"
+  label_room_4: "Stanza 4"
+
+sensor:
+  - platform: homeassistant
+    id: ha_power_total
+    entity_id: ${ent_power_total}
+    on_value:
+      - script.execute: update_power
+
+  - platform: homeassistant
+    id: ha_power_sub
+    entity_id: ${ent_power_sub}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_power_sub
+          text: !lambda 'return isnan(x) ? std::string("-- W") : str_sprintf("%.0f W", x);'
+
+  - platform: homeassistant
+    id: ha_temp_in
+    entity_id: ${ent_temp_in}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_temp_in
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+
+  - platform: homeassistant
+    id: ha_temp_out
+    entity_id: ${ent_temp_out}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_temp_out
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+
+  # Setpoint del termostato (attributo "temperature" del climate)
+  - platform: homeassistant
+    id: ha_setpoint
+    entity_id: ${ent_climate}
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: lbl_setpoint
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+
+  - platform: homeassistant
+    id: ha_room_1
+    entity_id: ${ent_room_1}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_room_1
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+  - platform: homeassistant
+    id: ha_room_2
+    entity_id: ${ent_room_2}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_room_2
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+  - platform: homeassistant
+    id: ha_room_3
+    entity_id: ${ent_room_3}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_room_3
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+  - platform: homeassistant
+    id: ha_room_4
+    entity_id: ${ent_room_4}
+    on_value:
+      - lvgl.label.update:
+          id: lbl_room_4
+          text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
+
+text_sensor:
+  # Modalita' termostato (heat / off / ...)
+  - platform: homeassistant
+    id: ha_climate_mode
+    entity_id: ${ent_climate}
+
+  # Azione in corso (heating / idle / off)
+  - platform: homeassistant
+    id: ha_climate_action
+    entity_id: ${ent_climate}
+    attribute: hvac_action
+    on_value:
+      - lvgl.label.update:
+          id: lbl_heat
+          text: !lambda |-
+            if (x == "heating") return std::string("ON");
+            if (id(ha_climate_mode).state == "off") return std::string("OFF");
+            return std::string("idle");
+          text_color: !lambda |-
+            return x == "heating" ? lv_color_hex(0xFF7A1A) : lv_color_hex(0x8B93A7);
+
+binary_sensor:
+  - platform: homeassistant
+    id: ha_light_1
+    entity_id: ${ent_light_1}
+    on_state:
+      - lvgl.widget.update:
+          id: btn_light_1
+          state:
+            checked: !lambda 'return x;'
+  - platform: homeassistant
+    id: ha_light_2
+    entity_id: ${ent_light_2}
+    on_state:
+      - lvgl.widget.update:
+          id: btn_light_2
+          state:
+            checked: !lambda 'return x;'
+  - platform: homeassistant
+    id: ha_light_3
+    entity_id: ${ent_light_3}
+    on_state:
+      - lvgl.widget.update:
+          id: btn_light_3
+          state:
+            checked: !lambda 'return x;'

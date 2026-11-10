@@ -1,0 +1,449 @@
+# =============================================================================
+# UI LVGL 480x480
+#   Pagina "Casa":   arco consumo + temperature + termostato + 3 luci
+#   Pagina "Stanze": 4 temperature
+# =============================================================================
+
+script:
+  - id: update_clock
+    then:
+      - lvgl.label.update:
+          id: lbl_clock
+          text: !lambda 'return id(ha_time).now().strftime("%H:%M");'
+      - lvgl.label.update:
+          id: lbl_date
+          text: !lambda |-
+            static const char *const gg[] = {"Dom","Lun","Mar","Mer","Gio","Ven","Sab"};
+            static const char *const mm[] = {"gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"};
+            auto t = id(ha_time).now();
+            if (!t.is_valid()) return std::string("--");
+            return str_sprintf("%s %d %s", gg[t.day_of_week - 1], t.day_of_month, mm[t.month - 1]);
+
+  - id: update_power
+    then:
+      - lvgl.arc.update:
+          id: arc_power
+          value: !lambda |-
+            float w = id(ha_power_total).state;
+            if (isnan(w) || w < 0) return 0;
+            return (int) std::min(w, (float) ${power_max_scale});
+          indicator:
+            arc_color: !lambda |-
+              float w = id(ha_power_total).state;
+              if (w >= ${power_limit}) return lv_color_hex(0xE5484D);
+              if (w >= ${power_warn})  return lv_color_hex(0xF5A524);
+              return lv_color_hex(0x30A46C);
+      - lvgl.label.update:
+          id: lbl_power
+          text: !lambda |-
+            float w = id(ha_power_total).state;
+            return isnan(w) ? std::string("--") : str_sprintf("%.0f", w);
+      - lvgl.label.update:
+          id: lbl_power_state
+          text: !lambda |-
+            float w = id(ha_power_total).state;
+            if (isnan(w)) return std::string("");
+            if (w >= ${power_limit}) return std::string("Oltre il limite");
+            if (w >= ${power_warn})  return std::string("Vicino al limite");
+            return std::string("Nella norma");
+          text_color: !lambda |-
+            float w = id(ha_power_total).state;
+            if (w >= ${power_limit}) return lv_color_hex(0xE5484D);
+            if (w >= ${power_warn})  return lv_color_hex(0xF5A524);
+            return lv_color_hex(0x30A46C);
+
+# Indicatore connessione HA (icona wifi in alto a destra)
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition: api.connected
+          then:
+            - lvgl.label.update:
+                id: ico_status
+                text: "\U000F05A9"
+                text_color: 0x8B93A7
+          else:
+            - lvgl.label.update:
+                id: ico_status
+                text: "\U000F05AA"
+                text_color: 0xE5484D
+
+# -----------------------------------------------------------------------------
+font:
+  - file: "gfonts://Roboto"
+    id: f_small
+    size: 18
+    bpp: 4
+    glyphs: &txt_glyphs " !%+,-./0123456789:;°ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzàèéìòù'·()"
+  - file: "gfonts://Roboto@500"
+    id: f_med
+    size: 26
+    bpp: 4
+    glyphs: *txt_glyphs
+  - file: "gfonts://Roboto@300"
+    id: f_temp
+    size: 44
+    bpp: 4
+    glyphs: " -.0123456789°"
+  - file: "gfonts://Roboto@300"
+    id: f_watt
+    size: 64
+    bpp: 4
+    glyphs: " -0123456789"
+  - file: "gfonts://Roboto@300"
+    id: f_room
+    size: 72
+    bpp: 4
+    glyphs: " -.0123456789°"
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_icons
+    size: 24
+    bpp: 4
+    glyphs: &icon_glyphs [
+      "\U000F0241",  # flash
+      "\U000F02DC",  # home
+      "\U000F0590",  # weather-cloudy
+      "\U000F0238",  # fire
+      "\U000F050F",  # thermometer
+      "\U000F05A9",  # wifi
+      "\U000F05AA",  # wifi-off
+      "\U000F0142",  # chevron-right
+      "\U000F0335",  # lightbulb
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_icons_big
+    size: 38
+    bpp: 4
+    glyphs: *icon_glyphs
+
+color:
+  - id: c_bg
+    hex: "0E1116"
+  - id: c_card
+    hex: "181C24"
+  - id: c_muted
+    hex: "8B93A7"
+  - id: c_text
+    hex: "E6E9EF"
+
+# -----------------------------------------------------------------------------
+lvgl:
+  displays: [tft_display]
+  touchscreens: [tft_touch]
+  buffer_size: 25%
+  page_wrap: true
+  bg_color: c_bg
+  on_idle:
+    timeout: ${idle_timeout}
+    then:
+      - light.turn_on:
+          id: display_backlight
+          brightness: ${brightness_idle}
+  theme:
+    button:
+      bg_color: 0x252B36
+      bg_opa: COVER
+      text_color: 0x8B93A7
+      radius: 16
+      border_width: 0
+      shadow_width: 0
+      pressed:
+        bg_color: 0x30384A
+      checked:
+        bg_color: 0x3A2A10
+        text_color: 0xF5A524
+  style_definitions:
+    - id: card
+      bg_color: c_card
+      bg_opa: COVER
+      radius: 14
+      border_width: 0
+      pad_all: 12
+      scrollbar_mode: "OFF"
+    - id: muted
+      text_color: c_muted
+
+  # Barra superiore comune
+  top_layer:
+    text_color: c_text
+    text_font: f_small
+    widgets:
+      - label:
+          id: lbl_clock
+          x: 16
+          y: 8
+          text_font: f_med
+          text: "--:--"
+      - label:
+          id: lbl_date
+          x: 100
+          y: 14
+          styles: muted
+          text: "--"
+      - button:
+          id: btn_page
+          align: TOP_RIGHT
+          x: -52
+          y: 4
+          width: 44
+          height: 38
+          radius: 10
+          on_click:
+            - lvgl.page.next:
+          widgets:
+            - label:
+                align: CENTER
+                text_font: f_icons
+                text: "\U000F0142"
+      - label:
+          id: ico_status
+          align: TOP_RIGHT
+          x: -16
+          y: 10
+          text_font: f_icons
+          text_color: 0xE5484D
+          text: "\U000F05AA"
+
+  pages:
+    # -------------------------------------------------------------------------
+    - id: page_casa
+      bg_color: c_bg
+      text_color: c_text
+      text_font: f_small
+      widgets:
+        # --- Consumo ------------------------------------------------------
+        - obj:
+            styles: card
+            x: 16
+            y: 52
+            width: 250
+            height: 300
+            widgets:
+              - arc:
+                  id: arc_power
+                  align: TOP_MID
+                  y: 0
+                  width: 210
+                  height: 210
+                  min_value: 0
+                  max_value: ${power_max_scale}
+                  value: 0
+                  start_angle: 135
+                  end_angle: 45
+                  adjustable: false
+                  clickable: false
+                  arc_width: 18
+                  arc_color: 0x252B36
+                  arc_rounded: true
+                  indicator:
+                    arc_width: 18
+                    arc_color: 0x30A46C
+                    arc_rounded: true
+                  knob:
+                    opa: TRANSP
+              - label:
+                  align: TOP_MID
+                  y: 46
+                  styles: muted
+                  text: "\U000F0241"
+                  text_font: f_icons
+              - label:
+                  id: lbl_power
+                  align: TOP_MID
+                  y: 70
+                  text_font: f_watt
+                  text: "--"
+              - label:
+                  align: TOP_MID
+                  y: 140
+                  styles: muted
+                  text: "W · limite ${power_limit_label}"
+              - label:
+                  id: lbl_power_state
+                  align: TOP_MID
+                  y: 166
+                  text: ""
+              - label:
+                  align: BOTTOM_LEFT
+                  styles: muted
+                  text: "${label_power_sub}"
+              - label:
+                  id: lbl_power_sub
+                  align: BOTTOM_RIGHT
+                  text: "-- W"
+
+        # --- Interno -------------------------------------------------------
+        - obj:
+            styles: card
+            x: 278
+            y: 52
+            width: 186
+            height: 93
+            widgets:
+              - label:
+                  styles: muted
+                  text_font: f_icons
+                  text: "\U000F02DC"
+              - label:
+                  x: 30
+                  y: 2
+                  styles: muted
+                  text: "${label_temp_in}"
+              - label:
+                  id: lbl_temp_in
+                  align: BOTTOM_LEFT
+                  text_font: f_temp
+                  text: "--"
+
+        # --- Esterno -------------------------------------------------------
+        - obj:
+            styles: card
+            x: 278
+            y: 155
+            width: 186
+            height: 93
+            widgets:
+              - label:
+                  styles: muted
+                  text_font: f_icons
+                  text: "\U000F0590"
+              - label:
+                  x: 30
+                  y: 2
+                  styles: muted
+                  text: "${label_temp_out}"
+              - label:
+                  id: lbl_temp_out
+                  align: BOTTOM_LEFT
+                  text_font: f_temp
+                  text: "--"
+
+        # --- Termostato (tocco = heat/off) --------------------------------
+        - obj:
+            styles: card
+            x: 278
+            y: 258
+            width: 186
+            height: 94
+            clickable: true
+            pressed:
+              bg_color: 0x232936
+            on_click:
+              - homeassistant.action:
+                  action: climate.set_hvac_mode
+                  data:
+                    entity_id: ${ent_climate}
+                    hvac_mode: !lambda 'return id(ha_climate_mode).state == "off" ? std::string("heat") : std::string("off");'
+            widgets:
+              - label:
+                  styles: muted
+                  text_font: f_icons
+                  text: "\U000F0238"
+              - label:
+                  x: 30
+                  y: 2
+                  styles: muted
+                  text: "${label_climate}"
+              - label:
+                  id: lbl_setpoint
+                  align: BOTTOM_LEFT
+                  text_font: f_med
+                  text: "--"
+              - label:
+                  id: lbl_heat
+                  align: BOTTOM_RIGHT
+                  y: -4
+                  styles: muted
+                  text: "--"
+
+        # --- Luci ----------------------------------------------------------
+        - button:
+            id: btn_light_1
+            x: 16
+            y: 364
+            width: 141
+            height: 100
+            on_click:
+              - homeassistant.action:
+                  action: homeassistant.toggle
+                  data:
+                    entity_id: ${ent_light_1}
+            widgets:
+              - label: {align: TOP_LEFT, text_font: f_icons_big, text: "\U000F0335"}
+              - label: {align: BOTTOM_LEFT, text: "${label_light_1}"}
+        - button:
+            id: btn_light_2
+            x: 169
+            y: 364
+            width: 142
+            height: 100
+            on_click:
+              - homeassistant.action:
+                  action: homeassistant.toggle
+                  data:
+                    entity_id: ${ent_light_2}
+            widgets:
+              - label: {align: TOP_LEFT, text_font: f_icons_big, text: "\U000F0335"}
+              - label: {align: BOTTOM_LEFT, text: "${label_light_2}"}
+        - button:
+            id: btn_light_3
+            x: 323
+            y: 364
+            width: 141
+            height: 100
+            on_click:
+              - homeassistant.action:
+                  action: homeassistant.toggle
+                  data:
+                    entity_id: ${ent_light_3}
+            widgets:
+              - label: {align: TOP_LEFT, text_font: f_icons_big, text: "\U000F0335"}
+              - label: {align: BOTTOM_LEFT, text: "${label_light_3}"}
+
+    # -------------------------------------------------------------------------
+    - id: page_stanze
+      bg_color: c_bg
+      text_color: c_text
+      text_font: f_small
+      widgets:
+        - obj:
+            styles: card
+            x: 16
+            y: 52
+            width: 218
+            height: 200
+            widgets:
+              - label: {styles: muted, text_font: f_icons, text: "\U000F050F"}
+              - label: {x: 30, y: 2, text_font: f_med, text: "${label_room_1}"}
+              - label: {id: lbl_room_1, align: BOTTOM_RIGHT, text_font: f_room, text: "--"}
+        - obj:
+            styles: card
+            x: 246
+            y: 52
+            width: 218
+            height: 200
+            widgets:
+              - label: {styles: muted, text_font: f_icons, text: "\U000F050F"}
+              - label: {x: 30, y: 2, text_font: f_med, text: "${label_room_2}"}
+              - label: {id: lbl_room_2, align: BOTTOM_RIGHT, text_font: f_room, text: "--"}
+        - obj:
+            styles: card
+            x: 16
+            y: 264
+            width: 218
+            height: 200
+            widgets:
+              - label: {styles: muted, text_font: f_icons, text: "\U000F050F"}
+              - label: {x: 30, y: 2, text_font: f_med, text: "${label_room_3}"}
+              - label: {id: lbl_room_3, align: BOTTOM_RIGHT, text_font: f_room, text: "--"}
+        - obj:
+            styles: card
+            x: 246
+            y: 264
+            width: 218
+            height: 200
+            widgets:
+              - label: {styles: muted, text_font: f_icons, text: "\U000F050F"}
+              - label: {x: 30, y: 2, text_font: f_med, text: "${label_room_4}"}
+              - label: {id: lbl_room_4, align: BOTTOM_RIGHT, text_font: f_room, text: "--"}
