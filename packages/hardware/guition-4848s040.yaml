@@ -51,7 +51,6 @@ display:
     dimensions:
       width: 480
       height: 480
-    rotation: ${display_rotation}
     spi_mode: MODE3
     data_rate: 2MHz
     color_order: RGB

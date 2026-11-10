@@ -131,6 +131,7 @@ color:
 lvgl:
   displays: [tft_display]
   touchscreens: [tft_touch]
+  rotation: ${display_rotation}
   buffer_size: 25%
   page_wrap: true
   bg_color: c_bg
