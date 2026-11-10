@@ -3,6 +3,10 @@
 Pannello touch 4" 480×480 per Home Assistant, basato su ESPHome + LVGL.
 Niente blueprint, niente file TFT: tutta la logica sta nello YAML.
 
+<p align="center"><img src="docs/preview.png" alt="Anteprima della pagina Casa" width="420"></p>
+
+<sub>Anteprima indicativa del layout (mockup), non uno screenshot del dispositivo.</sub>
+
 **Pagina Casa**
 - Consumo istantaneo su arco con soglie colorate (verde / arancio / rosso) e consumo secondario
 - Temperatura interna ed esterna
