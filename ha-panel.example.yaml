@@ -45,8 +45,10 @@ substitutions:
 packages:
   ha_panel:
     url: https://github.com/sysdumped/esphome-ha-panel-4848s040
-    ref: main            # meglio un tag, es. v0.1.0
-    refresh: 1d
+    # Sviluppo: main + refresh always (scarica le modifiche a ogni build).
+    # Stabile:   un tag (es. v0.1.0) + refresh never.
+    ref: main
+    refresh: always
     files:
       - packages/hardware/guition-4848s040.yaml
       # - packages/hardware/guition-4848s040-relays.yaml   # solo versione con relè
