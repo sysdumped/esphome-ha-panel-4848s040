@@ -7,9 +7,9 @@ substitutions:
   friendly_name: HA Panel
   timezone: Europe/Rome
   display_rotation: "0"        # 270 se la USB guarda verso il basso
-  idle_timeout: 60s            # dopo quanto si abbassa la luminosita'
+  idle_timeout: "60"           # secondi, valore iniziale (poi regolabile da HA)
   brightness_active: "100%"
-  brightness_idle: "15%"
+  brightness_idle: "15"        # %, valore iniziale (poi regolabile da HA)
   log_level: INFO              # DEBUG per vedere coordinate dei tocchi e click
   lvgl_log_level: WARN         # INFO per i dettagli di input LVGL
 
@@ -75,6 +75,34 @@ switch:
       - light.turn_on:
           id: display_backlight
           brightness: ${brightness_active}
+
+number:
+  - platform: template
+    id: num_idle_timeout
+    name: "Timeout dimming"
+    icon: mdi:timer-outline
+    entity_category: config
+    unit_of_measurement: s
+    min_value: 10
+    max_value: 3600
+    step: 10
+    mode: box
+    optimistic: true
+    restore_value: true
+    initial_value: ${idle_timeout}
+  - platform: template
+    id: num_brightness_idle
+    name: "Luminosità a riposo"
+    icon: mdi:brightness-4
+    entity_category: config
+    unit_of_measurement: "%"
+    min_value: 0
+    max_value: 100
+    step: 5
+    mode: slider
+    optimistic: true
+    restore_value: true
+    initial_value: ${brightness_idle}
 
 binary_sensor:
   - platform: status
