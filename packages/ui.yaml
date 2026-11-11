@@ -134,7 +134,7 @@ lvgl:
   rotation: ${display_rotation}
   buffer_size: 25%
   page_wrap: true
-  log_level: INFO
+  log_level: ${lvgl_log_level}
   bg_color: c_bg
   on_idle:
     timeout: ${idle_timeout}

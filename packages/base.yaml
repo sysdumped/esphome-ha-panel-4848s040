@@ -10,6 +10,8 @@ substitutions:
   idle_timeout: 60s            # dopo quanto si abbassa la luminosita'
   brightness_active: "100%"
   brightness_idle: "15%"
+  log_level: INFO              # DEBUG per vedere coordinate dei tocchi e click
+  lvgl_log_level: WARN         # INFO per i dettagli di input LVGL
 
 esphome:
   name: ${device_name}
@@ -17,6 +19,7 @@ esphome:
   min_version: 2025.7.0
 
 logger:
+  level: ${log_level}
 
 api:
   encryption:

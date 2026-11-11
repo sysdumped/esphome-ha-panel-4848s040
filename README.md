@@ -29,6 +29,8 @@ la luminosità si abbassa; il tocco la riporta piena.
 | MCU | ESP32-S3, 16 MB flash, 8 MB PSRAM |
 
 Pinout dalla [pagina ufficiale ESPHome devices](https://devices.esphome.io/devices/Guition-ESP32-S3-4848S040).
+Il GT911 di questa scheda dichiara 1024×600 ma invia coordinate 0..480: il file hardware
+imposta una `calibration` esplicita, altrimenti i tocchi finiscono spostati in alto a sinistra.
 Tutto l'hardware è isolato in `packages/hardware/`: per un'altra scheda basta
 un file che esponga `tft_display`, `tft_touch` e `display_backlight`.
 
@@ -71,11 +73,14 @@ secrets.example.yaml
 | `display_rotation` | `0` | `270` con USB verso il basso |
 | `idle_timeout` | `60s` | il dimming si disattiva da HA con lo switch **Dimming automatico** |
 | `brightness_active` / `brightness_idle` | `100%` / `15%` | |
+| `log_level` / `lvgl_log_level` | `INFO` / `WARN` | `DEBUG` / `INFO` per diagnosticare il touch |
 
 **Temperatura esterna da un'entità `weather`**: crea un template sensor in HA
 (`{{ state_attr('weather.casa', 'temperature') }}`) e usalo come `ent_temp_out`.
 
 ## Limiti noti / TODO
+
+- Testato su hardware reale (v0.1.0).
 
 - Il tocco che riaccende lo schermo attiva anche il widget sotto il dito.
 - Nessuna regolazione di luminosità per le luci (in programma: pressione lunga).
