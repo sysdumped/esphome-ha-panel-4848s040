@@ -16,6 +16,11 @@ psram:
   mode: octal
   speed: 80MHz
 
+# GPIO19/20 sono usati da touch (SDA) e display: il logger NON deve usare
+# l'USB-Serial-JTAG (default su ESP32-S3), altrimenti il touch non risponde.
+logger:
+  hardware_uart: UART0
+
 output:
   - platform: ledc
     id: backlight_output
@@ -40,6 +45,7 @@ spi:
 
 i2c:
   id: touchscreen_bus
+  scan: true          # nel log di avvio deve comparire il GT911 (0x5D o 0x14)
   sda: GPIO19
   scl:
     number: GPIO45
