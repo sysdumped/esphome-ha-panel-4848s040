@@ -59,6 +59,20 @@ sensor:
     update_interval: 60s
     entity_category: diagnostic
 
+switch:
+  # Disattivabile da HA: se spento lo schermo resta sempre alla luminosita' piena
+  - platform: template
+    id: sw_dimming
+    name: "Dimming automatico"
+    icon: mdi:brightness-auto
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    on_turn_off:
+      - light.turn_on:
+          id: display_backlight
+          brightness: ${brightness_active}
+
 binary_sensor:
   - platform: status
     name: "Stato"

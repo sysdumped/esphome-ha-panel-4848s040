@@ -134,13 +134,18 @@ lvgl:
   rotation: ${display_rotation}
   buffer_size: 25%
   page_wrap: true
+  log_level: INFO
   bg_color: c_bg
   on_idle:
     timeout: ${idle_timeout}
     then:
-      - light.turn_on:
-          id: display_backlight
-          brightness: ${brightness_idle}
+      - if:
+          condition:
+            switch.is_on: sw_dimming
+          then:
+            - light.turn_on:
+                id: display_backlight
+                brightness: ${brightness_idle}
   theme:
     button:
       bg_color: 0x252B36
@@ -192,6 +197,7 @@ lvgl:
           height: 38
           radius: 10
           on_click:
+            - logger.log: "click btn_page"
             - lvgl.page.next:
           widgets:
             - label:
@@ -332,6 +338,7 @@ lvgl:
             pressed:
               bg_color: 0x232936
             on_click:
+              - logger.log: "click termostato"
               - homeassistant.action:
                   action: climate.set_hvac_mode
                   data:
@@ -367,6 +374,7 @@ lvgl:
             width: 141
             height: 100
             on_click:
+              - logger.log: "click btn_light_1"
               - homeassistant.action:
                   action: homeassistant.toggle
                   data:
@@ -381,6 +389,7 @@ lvgl:
             width: 142
             height: 100
             on_click:
+              - logger.log: "click btn_light_2"
               - homeassistant.action:
                   action: homeassistant.toggle
                   data:
@@ -395,6 +404,7 @@ lvgl:
             width: 141
             height: 100
             on_click:
+              - logger.log: "click btn_light_3"
               - homeassistant.action:
                   action: homeassistant.toggle
                   data:

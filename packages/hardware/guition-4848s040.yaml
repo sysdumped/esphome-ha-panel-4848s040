@@ -90,6 +90,8 @@ touchscreen:
     id: tft_touch
     display: tft_display
     i2c_id: touchscreen_bus
+    on_touch:
+      - lambda: 'ESP_LOGD("touch", "tocco a x=%d y=%d", touch.x, touch.y);'
     on_release:
       # Al tocco riporta la luminosita' piena
       - light.turn_on:
