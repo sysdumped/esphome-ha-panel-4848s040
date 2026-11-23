@@ -1,0 +1,7 @@
+# Usato solo dalla CI: variante con modulo relè.
+packages:
+  hardware: !include ../packages/hardware/guition-4848s040.yaml
+  relays: !include ../packages/hardware/guition-4848s040-relays.yaml
+  base: !include ../packages/base.yaml
+  ha_data: !include ../packages/ha_data.yaml
+  ui: !include ../packages/ui.yaml
