@@ -45,8 +45,8 @@ packages:
   ha_panel:
     url: https://github.com/sysdumped/esphome-ha-panel-4848s040
     # Sviluppo: main + refresh always (scarica le modifiche a ogni build).
-    # Stabile:   un tag (es. v0.1.0) + refresh never.
-    ref: v0.1.0
+    # Stabile:   un tag (es. v0.2.0) + refresh never.
+    ref: v0.2.0
     refresh: never
     files:
       - packages/hardware/guition-4848s040.yaml
