@@ -70,18 +70,22 @@ secrets.example.yaml
 | `ent_light_N` / `label_light_N` | — | N = 1..3 |
 | `ent_room_N` / `label_room_N` | — | N = 1..4 |
 | `display_rotation` | `0` | `270` con USB verso il basso |
-| `idle_timeout` | `60` | secondi, valore iniziale; poi si regola da HA con **Timeout dimming** |
+| `idle_timeout` | `60` | secondi, numero senza unità (non `60s`), valore iniziale; poi si regola da HA con **Timeout dimming** |
 | `brightness_active` | `100%` | luminosità al tocco |
-| `brightness_idle` | `15` | %, valore iniziale; poi si regola da HA con **Luminosità a riposo** |
+| `brightness_idle` | `15` | %, numero senza `%`, valore iniziale; poi si regola da HA con **Luminosità a riposo** |
 | `log_level` / `lvgl_log_level` | `INFO` / `WARN` | `DEBUG` / `INFO` per diagnosticare il touch |
 
 **Temperatura esterna da un'entità `weather`**: crea un template sensor in HA
 (`{{ state_attr('weather.casa', 'temperature') }}`) e usalo come `ent_temp_out`.
 
+## Versioni
+
+Usa un tag stabile (`ref: v0.2.0`) e leggi il [CHANGELOG](CHANGELOG.md) prima di aggiornare:
+in 0.x un aumento del minor può richiedere modifiche al tuo deploy.
+
 ## Limiti noti / TODO
 
 - Testato su hardware reale (v0.1.0).
-
 - Il tocco che riaccende lo schermo attiva anche il widget sotto il dito.
 - Nessuna regolazione di luminosità per le luci (in programma: pressione lunga).
 - Swipe tra le pagine non ancora implementato (c'è il tasto `>`).
