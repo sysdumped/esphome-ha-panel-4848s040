@@ -1,6 +1,6 @@
 # =============================================================================
 # UI LVGL 480x480
-#   Pagina "Casa":   arco consumo + temperature + termostato + 3 luci
+#   Pagina "Casa":   arco consumo + 3 temperature + 3 luci
 #   Pagina "Stanze": 4 temperature
 # =============================================================================
 
@@ -104,7 +104,6 @@ font:
       "\U000F0241",  # flash
       "\U000F02DC",  # home
       "\U000F0590",  # weather-cloudy
-      "\U000F0238",  # fire
       "\U000F050F",  # thermometer
       "\U000F05A9",  # wifi
       "\U000F05AA",  # wifi-off
@@ -327,43 +326,27 @@ lvgl:
                   text_font: f_temp
                   text: "--"
 
-        # --- Termostato (tocco = heat/off) --------------------------------
+        # --- Terza temperatura --------------------------------------------
         - obj:
             styles: card
             x: 278
             y: 258
             width: 186
             height: 94
-            clickable: true
-            pressed:
-              bg_color: 0x232936
-            on_click:
-              - logger.log: "click termostato"
-              - homeassistant.action:
-                  action: climate.set_hvac_mode
-                  data:
-                    entity_id: ${ent_climate}
-                    hvac_mode: !lambda 'return id(ha_climate_mode).state == "off" ? std::string("heat") : std::string("off");'
             widgets:
               - label:
                   styles: muted
                   text_font: f_icons
-                  text: "\U000F0238"
+                  text: "\U000F050F"
               - label:
                   x: 30
                   y: 2
                   styles: muted
-                  text: "${label_climate}"
+                  text: "${label_temp_3}"
               - label:
-                  id: lbl_setpoint
+                  id: lbl_temp_3
                   align: BOTTOM_LEFT
-                  text_font: f_med
-                  text: "--"
-              - label:
-                  id: lbl_heat
-                  align: BOTTOM_RIGHT
-                  y: -4
-                  styles: muted
+                  text_font: f_temp
                   text: "--"
 
         # --- Luci ----------------------------------------------------------

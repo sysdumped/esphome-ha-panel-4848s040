@@ -9,8 +9,7 @@ Niente blueprint, niente file TFT: tutta la logica sta nello YAML.
 
 **Pagina Casa**
 - Consumo istantaneo su arco con soglie colorate (verde / arancio / rosso) e consumo secondario
-- Temperatura interna ed esterna
-- Termostato: setpoint e stato; un tocco alterna `heat` / `off`
+- 3 temperature: interna, esterna e una terza a scelta
 - 3 tasti on/off (luci o qualsiasi entità `light.*` / `switch.*`) che seguono lo stato reale
 
 **Pagina Stanze**
@@ -55,7 +54,7 @@ secrets.example.yaml
 4. Primo flash via USB, poi OTA.
 5. In Home Assistant: **Impostazioni → Dispositivi e servizi → ESPHome → Configura**
    sul pannello e abilita **"Consenti al dispositivo di eseguire azioni Home Assistant"**,
-   altrimenti luci e termostato non rispondono al tocco.
+   altrimenti le luci non rispondono al tocco.
 
 ## Substitutions
 
@@ -67,7 +66,7 @@ secrets.example.yaml
 | `power_limit_label` | `6 kW` | testo sotto i watt |
 | `power_max_scale` | `7000` | fondo scala arco |
 | `ent_temp_in` / `ent_temp_out` | — | sensori °C |
-| `ent_climate` | `climate.thermostat` | usa attributi `temperature` e `hvac_action` |
+| `ent_temp_3` / `label_temp_3` | `sensor.temperature_3` / `Temperatura` | terza temperatura (al posto del vecchio termostato) |
 | `ent_light_N` / `label_light_N` | — | N = 1..3 |
 | `ent_room_N` / `label_room_N` | — | N = 1..4 |
 | `display_rotation` | `0` | `270` con USB verso il basso |

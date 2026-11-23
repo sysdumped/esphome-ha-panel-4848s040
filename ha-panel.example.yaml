@@ -20,9 +20,8 @@ substitutions:
   # Temperature
   ent_temp_in: sensor.temperature_indoor
   ent_temp_out: sensor.temperature_outdoor
-
-  # Termostato
-  ent_climate: climate.thermostat
+  ent_temp_3: sensor.attic_temperature
+  label_temp_3: "Mansarda"
 
   # Luci (light.* o switch.*)
   ent_light_1: light.living_room

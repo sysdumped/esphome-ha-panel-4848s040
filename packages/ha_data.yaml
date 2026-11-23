@@ -19,10 +19,8 @@ substitutions:
   ent_temp_out: sensor.temperature_outdoor
   label_temp_in: "Interno"
   label_temp_out: "Esterno"
-
-  # --- Termostato (climate) ------------------------------------------------
-  ent_climate: climate.thermostat
-  label_climate: "Termostato"
+  ent_temp_3: sensor.temperature_3
+  label_temp_3: "Temperatura"
 
   # --- Luci (light.* o switch.*, qualsiasi entita' on/off) ------------------
   ent_light_1: light.light_1
@@ -73,14 +71,12 @@ sensor:
           id: lbl_temp_out
           text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
 
-  # Setpoint del termostato (attributo "temperature" del climate)
   - platform: homeassistant
-    id: ha_setpoint
-    entity_id: ${ent_climate}
-    attribute: temperature
+    id: ha_temp_3
+    entity_id: ${ent_temp_3}
     on_value:
       - lvgl.label.update:
-          id: lbl_setpoint
+          id: lbl_temp_3
           text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
 
   - platform: homeassistant
@@ -111,27 +107,6 @@ sensor:
       - lvgl.label.update:
           id: lbl_room_4
           text: !lambda 'return isnan(x) ? std::string("--") : str_sprintf("%.1f°", x);'
-
-text_sensor:
-  # Modalita' termostato (heat / off / ...)
-  - platform: homeassistant
-    id: ha_climate_mode
-    entity_id: ${ent_climate}
-
-  # Azione in corso (heating / idle / off)
-  - platform: homeassistant
-    id: ha_climate_action
-    entity_id: ${ent_climate}
-    attribute: hvac_action
-    on_value:
-      - lvgl.label.update:
-          id: lbl_heat
-          text: !lambda |-
-            if (x == "heating") return std::string("ON");
-            if (id(ha_climate_mode).state == "off") return std::string("OFF");
-            return std::string("idle");
-          text_color: !lambda |-
-            return x == "heating" ? lv_color_hex(0xFF7A1A) : lv_color_hex(0x8B93A7);
 
 binary_sensor:
   - platform: homeassistant
